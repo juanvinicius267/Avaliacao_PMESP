@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "About";
+}
+
+<div id="divErros">
+    <h2>Dados gravados no banco de dados</h2>
+    <br />
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Data Da Entrega</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Valor Unitario</th>
+                <th scope="col">Valor Total</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaErros"></tbody>
+    </table>
+</div>
+<script type="text/javascript">
+
+    $.get('/GetImportacoes', function (dados) {
+        for (var i = 0; i < dados.length; i++) {
+            $('#tabelaErros').append(`
+            <tr>
+                <td>${dados[i].id == null ? "-" : dados[i].id}</td>
+                <td>${dados[i].dataEntrega == null ? "-" : dataFormatada(dados[i].dataEntrega)}</td>
+                <td>${dados[i].nomeDoProduto == null ? "-" : dados[i].nomeDoProduto}</td>
+                <td>${dados[i].quantidade == null ? "-" : dados[i].quantidade}</td>
+                <td>${dados[i].valorUnit == null ? "-" : dados[i].valorUnit}</td>
+                <td>${Math.round((parseFloat(dados[i].valorUnit) * parseFloat(dados[i].quantidade))*100)/100}</td>
+            </tr>
+        `);
+        }
+    })
+    function dataFormatada(data) {
+        var data = new Date(data),
+            dia = data.getDate().toString(),
+            diaF = (dia.length == 1) ? '0' + dia : dia,
+            mes = (data.getMonth() + 1).toString(), 
+            mesF = (mes.length == 1) ? '0' + mes : mes,
+            anoF = data.getFullYear();
+        return diaF + "/" + mesF + "/" + anoF;
+    }
+</script>

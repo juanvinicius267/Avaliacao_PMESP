@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<center style="min-height:700px">
+    <div id="alertas"> </div>
+    <div id="inputDados">
+        <h2>Entre com o Excel para que seja possivel realizar a leitura dos dados</h2>
+        <br />
+        <div>
+            <input type="file" id="excelFile">
+        </div>
+    </div>
+    
+    <hr />
+    <div id="divErros">
+        <h2>Erros encontrados</h2>
+        <br />
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Data Da Entrega</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Valor Unitario</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaErros">
+                
+                
+            </tbody>
+        </table>
+    </div>
+</center>
+    
+    <script type="text/javascript">
+       
+        document.addEventListener("DOMContentLoaded", function (event) {
+            $('#divErros').hide();
+        });
+        document.getElementById('excelFile').addEventListener('change', function () {
+            var files = $(`#excelFile`)[0].files[0];
+
+            if ($(`#excelFile`).get(0).files.length !== 0) {
+                $(`#excelFile`).attr(`Item`);
+
+                        var excel = new FormData();
+
+                excel.append('file', files);
+
+                        $.ajax({                            
+                            url: '/api/Tabela',
+                            type: 'POST',
+                            data: excel,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                $('#alertas').append(`<div class="alert alert-success">Dados inseridos com sucesso</div>`);
+                                $('#inputDados').hide();
+                                setTimeout(() => { window.location.replace("/Home/About"); }, 3000);
+                            },
+                            error: function (response) {
+                                var dados = response.responseJSON;
+                                console.log(response.status)
+                                if (response.status === 400) {
+                                    $("#divErros").show();
+                                    $('#alertas').append(`<div class="alert alert-danger">Corrija os erros abaixo para que seja possivel realizar a inserção dos dados. Após a correção recarregue a pagina!</div>`);
+                                    for (var i = 0; i < dados.length; i++) {
+                                        $('#tabelaErros').append(`
+                                        <tr>
+                                            <td>${dados[i].tamanhoData == null ? "-" : dados[i].tamanhoData}</td>
+                                            <td>${dados[i].tamanhoDescricao == null ? "-" : dados[i].tamanhoDescricao}</td>
+                                            <td>${dados[i].tamanhoQtd == null ? "-" : dados[i].tamanhoQtd}</td>
+                                            <td>${dados[i].tamanhoValor == null ? "-" : dados[i].tamanhoValor}</td>
+                                        </tr>
+                                    `);
+                                        $('#inputDados').hide();
+                                    }
+                                } else {
+                                    $('#alertas').append(`<div class="alert alert-danger">Erro interno, por favor tente inserir os dados mais tarde!</div>`);
+
+                                    $('#inputDados').hide();
+                                }
+                                
+                            }
+                        });
+                    }
+        }, false);
+
+        
+    </script>
+
